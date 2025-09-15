@@ -84,14 +84,11 @@ async function groupTasksByDay(
         const isToday = dateMoment.isSame(now, 'day');
         const isTomorrow = dateMoment.isSame(now.clone().add(1, 'day'), 'day');
 
-        // Skip today's tasks - we only want upcoming tasks
-        if (isToday) {
-            return; // Skip today's tasks
-        }
-
         // Create a descriptive group name
         let groupName;
-        if (isTomorrow) {
+        if (isToday) {
+            groupName = 'Today';
+        } else if (isTomorrow) {
             groupName = 'Tomorrow';
         } else {
             groupName = `${dayName}, ${dateDisplay}`;
@@ -179,7 +176,7 @@ async function groupTasksByDay(
 }
 
 // Helper function to serialize task with today move count
-async function serializeTask(task, userTimezone = 'UTC') {
+async function serializeTask(task, userTimezone = 'UTC', options = {}) {
     if (!task) {
         throw new Error('Task is null or undefined');
     }
@@ -191,8 +188,12 @@ async function serializeTask(task, userTimezone = 'UTC') {
     const { Subtasks, ...taskWithoutSubtasks } = taskJson;
 
     // For recurring task templates, show recurrence type instead of original name
+    // unless skipDisplayNameTransform option is true
+    // Skip this transformation for 'today' type queries to show actual task names
     let displayName = taskJson.name;
     if (
+        !options.skipDisplayNameTransform &&
+        !options.preserveOriginalName &&
         taskJson.recurrence_type &&
         taskJson.recurrence_type !== 'none' &&
         !taskJson.recurring_parent_id
@@ -453,11 +454,71 @@ async function undoneAllSubtasks(parentTaskId, userId) {
 
 // Filter tasks by parameters
 async function filterTasksByParams(params, userId, userTimezone) {
+    // Disable search functionality for upcoming view
+    if (params.type === 'upcoming') {
+        // Remove search-related parameters to prevent search functionality
+        params = { ...params, client_side_filtering: false };
+        delete params.search;
+    }
+
     let whereClause = {
         user_id: userId,
         parent_task_id: null, // Exclude subtasks from main task lists
-        recurring_parent_id: null, // Exclude recurring task instances, only show templates
     };
+
+    // Include both recurring templates and instances, but handle them appropriately
+    whereClause[Op.or] = [
+        // Include all non-recurring tasks
+        {
+            [Op.and]: [
+                {
+                    [Op.or]: [
+                        { recurrence_type: 'none' },
+                        { recurrence_type: null },
+                    ],
+                },
+                { recurring_parent_id: null }, // Non-recurring tasks have no parent
+            ],
+        },
+        // Include recurring templates that are not in the past
+        {
+            [Op.and]: [
+                { recurrence_type: { [Op.ne]: 'none' } },
+                { recurrence_type: { [Op.ne]: null } },
+                { recurring_parent_id: null }, // Templates have no parent
+                {
+                    [Op.or]: [
+                        { due_date: null }, // No due date - always show
+                        {
+                            due_date: {
+                                [Op.gte]: new Date(
+                                    new Date().setHours(0, 0, 0, 0)
+                                ),
+                            },
+                        }, // Today or future (start of today)
+                    ],
+                },
+            ],
+        },
+        // Include recurring task instances (but only future ones)
+        {
+            [Op.and]: [
+                { recurring_parent_id: { [Op.ne]: null } }, // Has a recurring parent
+                {
+                    [Op.or]: [
+                        { due_date: null }, // No due date - always show
+                        {
+                            due_date: {
+                                [Op.gte]: new Date(
+                                    new Date().setHours(0, 0, 0, 0)
+                                ),
+                            },
+                        }, // Today or future instances only
+                    ],
+                },
+            ],
+        },
+    ];
     let includeClause = [
         {
             model: Tag,
@@ -487,6 +548,8 @@ async function filterTasksByParams(params, userId, userTimezone) {
     // Filter by type
     switch (params.type) {
         case 'today':
+            // Exclude recurring task instances for today view
+            whereClause.recurring_parent_id = null;
             whereClause.status = {
                 [Op.notIn]: [
                     Task.STATUS.DONE,
@@ -502,6 +565,7 @@ async function filterTasksByParams(params, userId, userTimezone) {
 
             // For upcoming view, we want to show recurring instances (children) with due dates
             // Override the default whereClause to include recurring instances
+            // NOTE: Search functionality is disabled for upcoming view - ignore client_side_filtering
             whereClause = {
                 user_id: userId,
                 parent_task_id: null, // Exclude subtasks from main task lists
@@ -543,6 +607,8 @@ async function filterTasksByParams(params, userId, userTimezone) {
             whereClause.status = { [Op.notIn]: [Task.STATUS.DONE, 'done'] };
             break;
         case 'someday':
+            // Exclude recurring task instances for someday view
+            whereClause.recurring_parent_id = null;
             whereClause.due_date = null;
             whereClause.status = { [Op.notIn]: [Task.STATUS.DONE, 'done'] };
             break;
@@ -550,6 +616,8 @@ async function filterTasksByParams(params, userId, userTimezone) {
             whereClause.status = Task.STATUS.WAITING;
             break;
         case 'all':
+            // For 'all' view, include both recurring templates and instances
+            // The complex OR logic above already handles this correctly
             if (params.status === 'done') {
                 whereClause.status = { [Op.in]: [Task.STATUS.DONE, 'done'] };
             } else if (!params.client_side_filtering) {
@@ -558,6 +626,10 @@ async function filterTasksByParams(params, userId, userTimezone) {
             }
             break;
         default:
+            // Exclude recurring task instances from default view unless include_instances is specified
+            if (!params.include_instances) {
+                whereClause.recurring_parent_id = null;
+            }
             if (params.status === 'done') {
                 whereClause.status = { [Op.in]: [Task.STATUS.DONE, 'done'] };
             } else if (!params.client_side_filtering) {
@@ -1121,11 +1193,13 @@ router.get('/tasks', async (req, res) => {
                 ? parseInt(req.query.maxDays, 10)
                 : 7;
 
+            // For upcoming kanban view, sort tasks by due date within each day column
+            const dayGroupingOrderBy = req.query.order_by || 'due_date:asc';
             groupedTasks = await groupTasksByDay(
                 tasks,
                 req.currentUser.timezone,
                 maxDays,
-                req.query.order_by || 'created_at:desc'
+                dayGroupingOrderBy
             );
         }
         const metrics = await computeTaskMetrics(
@@ -1133,10 +1207,18 @@ router.get('/tasks', async (req, res) => {
             req.currentUser.timezone
         );
 
+        // Preserve original names for recurring tasks in 'today' view for productivity assistant
+        const serializationOptions =
+            req.query.type === 'today' ? { preserveOriginalName: true } : {};
+
         const response = {
             tasks: await Promise.all(
                 tasks.map((task) =>
-                    serializeTask(task, req.currentUser.timezone)
+                    serializeTask(
+                        task,
+                        req.currentUser.timezone,
+                        serializationOptions
+                    )
                 )
             ),
             metrics: {
@@ -1145,29 +1227,46 @@ router.get('/tasks', async (req, res) => {
                 tasks_in_progress_count: metrics.tasks_in_progress_count,
                 tasks_in_progress: await Promise.all(
                     metrics.tasks_in_progress.map((task) =>
-                        serializeTask(task, req.currentUser.timezone)
+                        serializeTask(
+                            task,
+                            req.currentUser.timezone,
+                            serializationOptions
+                        )
                     )
                 ),
                 tasks_due_today: await Promise.all(
                     metrics.tasks_due_today.map((task) =>
-                        serializeTask(task, req.currentUser.timezone)
+                        serializeTask(
+                            task,
+                            req.currentUser.timezone,
+                            serializationOptions
+                        )
                     )
                 ),
                 today_plan_tasks: await Promise.all(
                     metrics.today_plan_tasks.map((task) =>
-                        serializeTask(task, req.currentUser.timezone)
+                        serializeTask(
+                            task,
+                            req.currentUser.timezone,
+                            serializationOptions
+                        )
                     )
                 ),
                 suggested_tasks: await Promise.all(
                     metrics.suggested_tasks.map((task) =>
-                        serializeTask(task, req.currentUser.timezone)
+                        serializeTask(
+                            task,
+                            req.currentUser.timezone,
+                            serializationOptions
+                        )
                     )
                 ),
                 tasks_completed_today: await Promise.all(
                     metrics.tasks_completed_today.map(async (task) => {
                         const serialized = await serializeTask(
                             task,
-                            req.currentUser.timezone
+                            req.currentUser.timezone,
+                            serializationOptions
                         );
                         return {
                             ...serialized,
@@ -1296,7 +1395,8 @@ router.get('/task/:id', async (req, res) => {
 
         const serializedTask = await serializeTask(
             task,
-            req.currentUser.timezone
+            req.currentUser.timezone,
+            { skipDisplayNameTransform: true }
         );
 
         res.json(serializedTask);
@@ -1518,7 +1618,8 @@ router.post('/task', async (req, res) => {
 
         const serializedTask = await serializeTask(
             taskWithAssociations,
-            req.currentUser.timezone
+            req.currentUser.timezone,
+            { skipDisplayNameTransform: true }
         );
 
         // Add cache-busting headers to prevent HTTP caching
@@ -2119,7 +2220,8 @@ router.patch('/task/:id', async (req, res) => {
         // Use serializeTask to include subtasks data
         const serializedTask = await serializeTask(
             taskWithAssociations,
-            req.currentUser.timezone
+            req.currentUser.timezone,
+            { skipDisplayNameTransform: true }
         );
 
         res.json(serializedTask);
