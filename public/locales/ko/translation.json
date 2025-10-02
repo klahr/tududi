@@ -538,7 +538,11 @@
     "unprocessedItems": "받은 편지함에 {{count}}개의 항목이 있습니다",
     "processNow": "지금 처리하기",
     "deleteConfirmTitle": "항목 삭제",
-    "deleteConfirmMessage": "이 항목을 받은 편지함에서 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+    "deleteConfirmMessage": "이 항목을 받은 편지함에서 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+    "loadMoreError": "더 많은 항목을 불러오지 못했습니다",
+    "loading": "로딩 중...",
+    "loadMore": "더 많은 받은 편지함 항목 불러오기",
+    "showingItems": "{{current}} / {{total}} 항목 표시 중"
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",
@@ -651,6 +655,20 @@
       "inactive": "비활성",
       "all": "모두",
       "allAreas": "모든 영역"
+    },
+    "selectState": "상태 선택",
+    "state": "프로젝트 상태",
+    "states": {
+      "idea": "아이디어",
+      "planned": "계획됨",
+      "in_progress": "진행 중",
+      "blocked": "차단됨",
+      "completed": "완료됨",
+      "idea_desc": "포착되었지만 아직 계획되지 않음",
+      "planned_desc": "범위가 정의되고 시작할 준비가 됨",
+      "in_progress_desc": "활동적인 작업 진행 중",
+      "blocked_desc": "일시적으로 중단되거나 막힘",
+      "completed_desc": "완료되고 끝남"
     }
   },
   "projectItem": {

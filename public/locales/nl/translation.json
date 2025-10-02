@@ -538,7 +538,11 @@
     "unprocessedItems": "Je hebt {{count}} item(s) in je inbox",
     "processNow": "Nu verwerken",
     "deleteConfirmTitle": "Item verwijderen",
-    "deleteConfirmMessage": "Weet je zeker dat je dit item uit je inbox wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+    "deleteConfirmMessage": "Weet je zeker dat je dit item uit je inbox wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "loadMoreError": "Kon meer items niet laden",
+    "loading": "Laden...",
+    "loadMore": "Laad meer inboxitems",
+    "showingItems": "Toont {{current}} van {{total}} items"
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",
@@ -651,6 +655,20 @@
       "inactive": "Inactief",
       "all": "Alle",
       "allAreas": "Alle gebieden"
+    },
+    "selectState": "Selecteer Staat",
+    "state": "Projectstaat",
+    "states": {
+      "idea": "Idee",
+      "planned": "Gepland",
+      "in_progress": "In Uitvoering",
+      "blocked": "Geblokkeerd",
+      "completed": "Voltooid",
+      "idea_desc": "Vastgelegd maar nog niet gepland",
+      "planned_desc": "Afgebakend en klaar om te starten",
+      "in_progress_desc": "Actief werk aan de gang",
+      "blocked_desc": "Tijdelijk gepauzeerd of vastgelopen",
+      "completed_desc": "Afgerond en gedaan"
     }
   },
   "projectItem": {

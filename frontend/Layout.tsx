@@ -149,15 +149,15 @@ const Layout: React.FC<LayoutProps> = ({
     const handleSaveNote = async (noteData: Note) => {
         try {
             let result: Note;
-            if (noteData.id) {
-                result = await updateNote(noteData.id, noteData);
+            if (noteData.uid) {
+                result = await updateNote(noteData.uid, noteData);
                 // Update existing note in global store
                 const currentNotes = useStore.getState().notesStore.notes;
                 useStore
                     .getState()
                     .notesStore.setNotes(
                         currentNotes.map((note) =>
-                            note.id === result.id ? result : note
+                            note.uid === result.uid ? result : note
                         )
                     );
             } else {
@@ -198,19 +198,6 @@ const Layout: React.FC<LayoutProps> = ({
                 showSuccessToast(taskLink);
             } else {
                 const createdTask = await createTask(taskData);
-                const taskLink = (
-                    <span>
-                        {t('task.created', 'Task')}{' '}
-                        <a
-                            href="/tasks"
-                            className="text-green-200 underline hover:text-green-100"
-                        >
-                            {createdTask.name}
-                        </a>{' '}
-                        {t('task.createdSuccessfully', 'created successfully!')}
-                    </span>
-                );
-                showSuccessToast(taskLink);
 
                 // Notify Tasks component that a task was created
                 window.dispatchEvent(
@@ -236,7 +223,7 @@ const Layout: React.FC<LayoutProps> = ({
         try {
             const newProject = await createProject({
                 name,
-                active: true,
+                state: 'planned',
             });
             return newProject;
         } catch (error) {
@@ -268,15 +255,15 @@ const Layout: React.FC<LayoutProps> = ({
     const handleSaveArea = async (areaData: Partial<Area>) => {
         try {
             let result: Area;
-            if (areaData.id) {
-                result = await updateArea(areaData.id, areaData);
+            if (areaData.uid) {
+                result = await updateArea(areaData.uid, areaData);
                 // Update existing area in global store
                 const currentAreas = useStore.getState().areasStore.areas;
                 useStore
                     .getState()
                     .areasStore.setAreas(
                         currentAreas.map((area) =>
-                            area.id === result.id ? result : area
+                            area.uid === result.uid ? result : area
                         )
                     );
             } else {
@@ -301,15 +288,15 @@ const Layout: React.FC<LayoutProps> = ({
     const handleSaveTag = async (tagData: Tag) => {
         try {
             let result: Tag;
-            if (tagData.id) {
-                result = await updateTag(tagData.id, tagData);
+            if (tagData.uid) {
+                result = await updateTag(tagData.uid, tagData);
                 // Update existing tag in global store
                 const currentTags = useStore.getState().tagsStore.tags;
                 useStore
                     .getState()
                     .tagsStore.setTags(
                         currentTags.map((tag) =>
-                            tag.id === result.id ? result : tag
+                            tag.uid === result.uid ? result : tag
                         )
                     );
             } else {

@@ -538,7 +538,11 @@
     "unprocessedItems": "Você tem {{count}} item(ns) na sua caixa de entrada",
     "processNow": "Processar agora",
     "deleteConfirmTitle": "Excluir Item",
-    "deleteConfirmMessage": "Você tem certeza de que deseja excluir este item da sua caixa de entrada? Esta ação não pode ser desfeita."
+    "deleteConfirmMessage": "Você tem certeza de que deseja excluir este item da sua caixa de entrada? Esta ação não pode ser desfeita.",
+    "loadMoreError": "Falha ao carregar mais itens",
+    "loading": "Carregando...",
+    "loadMore": "Carregar mais itens da caixa de entrada",
+    "showingItems": "Mostrando {{current}} de {{total}} itens"
   },
   "dateFormats": {
     "long": "EEEE, d 'de' MMMM 'de' yyyy",
@@ -651,6 +655,20 @@
       "inactive": "Inativo",
       "all": "Todos",
       "allAreas": "Todas as Áreas"
+    },
+    "selectState": "Selecionar Estado",
+    "state": "Estado do Projeto",
+    "states": {
+      "idea": "Ideia",
+      "planned": "Planejado",
+      "in_progress": "Em Progresso",
+      "blocked": "Bloqueado",
+      "completed": "Concluído",
+      "idea_desc": "Capturado, mas ainda não planejado",
+      "planned_desc": "Escopado e pronto para começar",
+      "in_progress_desc": "Trabalho ativo em andamento",
+      "blocked_desc": "Pausado temporariamente ou preso",
+      "completed_desc": "Finalizado e concluído"
     }
   },
   "projectItem": {

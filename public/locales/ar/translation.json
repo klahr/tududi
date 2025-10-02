@@ -293,7 +293,8 @@
     "norwegian": "نرويجي",
     "polish": "بولندي",
     "slovenian": "سلوفيني",
-    "swedish": "السويدية"
+    "swedish": "السويدية",
+    "firstDayOfWeek": "أول يوم في الأسبوع"
   },
   "productivity": {
     "stalledProjects": "المشاريع المتوقفة",
@@ -537,7 +538,11 @@
     "unprocessedItems": "لديك {{count}} عنصر(عناصر) في صندوق الوارد",
     "processNow": "معالجة الآن",
     "deleteConfirmTitle": "حذف العنصر",
-    "deleteConfirmMessage": "هل أنت متأكد أنك تريد حذف هذا العنصر من صندوق الوارد؟ لا يمكن التراجع عن هذا الإجراء."
+    "deleteConfirmMessage": "هل أنت متأكد أنك تريد حذف هذا العنصر من صندوق الوارد؟ لا يمكن التراجع عن هذا الإجراء.",
+    "loadMoreError": "فشل في تحميل المزيد من العناصر",
+    "loading": "جارٍ التحميل...",
+    "loadMore": "تحميل المزيد من عناصر البريد الوارد",
+    "showingItems": "عرض {{current}} من {{total}} عنصر"
   },
   "dateFormats": {
     "long": "EEEE، d MMMM، yyyy",
@@ -650,6 +655,20 @@
       "inactive": "غير نشط",
       "all": "الكل",
       "allAreas": "جميع المناطق"
+    },
+    "selectState": "اختر الحالة",
+    "state": "حالة المشروع",
+    "states": {
+      "idea": "فكرة",
+      "planned": "مخطط",
+      "in_progress": "قيد التنفيذ",
+      "blocked": "محجوز",
+      "completed": "مكتمل",
+      "idea_desc": "تم التقاطها ولكن لم يتم التخطيط لها بعد",
+      "planned_desc": "تم تحديد نطاقها وجاهزة للبدء",
+      "in_progress_desc": "يتم العمل النشط",
+      "blocked_desc": "مؤقتًا متوقف أو عالق",
+      "completed_desc": "تم الانتهاء منها"
     }
   },
   "projectItem": {
@@ -901,5 +920,14 @@
     "viewOnGitHub": "عرض على GitHub",
     "license": "مرخص للاستخدام الشخصي",
     "builtBy": "بناء بواسطة"
+  },
+  "weekdaysFull": {
+    "sunday": "الأحد",
+    "monday": "الإثنين",
+    "tuesday": "الثلاثاء",
+    "wednesday": "الأربعاء",
+    "thursday": "الخميس",
+    "friday": "الجمعة",
+    "saturday": "السبت"
   }
 }

@@ -538,7 +538,11 @@
     "unprocessedItems": "Imate {{count}} element(e) v prejetih",
     "processNow": "Obdelaj zdaj",
     "deleteConfirmTitle": "Izbriši element",
-    "deleteConfirmMessage": "Ali ste prepričani, da želite izbrisati ta element iz svoje prejete pošte? Te akcije ni mogoče razveljaviti."
+    "deleteConfirmMessage": "Ali ste prepričani, da želite izbrisati ta element iz svoje prejete pošte? Te akcije ni mogoče razveljaviti.",
+    "loadMoreError": "Nalaganje dodatnih predmetov ni uspelo",
+    "loading": "Nalaganje...",
+    "loadMore": "Naloži več predmetov v prejeto",
+    "showingItems": "Prikazujem {{current}} od {{total}} predmetov"
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",
@@ -651,6 +655,20 @@
       "inactive": "Neaktivno",
       "all": "Vse",
       "allAreas": "Vse področja"
+    },
+    "selectState": "Izberite stanje",
+    "state": "Stanje projekta",
+    "states": {
+      "idea": "Ideja",
+      "planned": "Načrtovano",
+      "in_progress": "V teku",
+      "blocked": "Zasblocked",
+      "completed": "Dokončano",
+      "idea_desc": "Zajeto, a še ni načrtovano",
+      "planned_desc": "Določeno in pripravljeno za začetek",
+      "in_progress_desc": "Aktivno delo poteka",
+      "blocked_desc": "Začasno ustavljeno ali zastojev",
+      "completed_desc": "Dokončano in opravljeno"
     }
   },
   "projectItem": {

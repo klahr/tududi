@@ -4,6 +4,7 @@ import { Project } from '../../entities/Project';
 import { Note } from '../../entities/Note';
 import {
     loadInboxItemsToStore,
+    loadMoreInboxItemsToStore,
     processInboxItemWithStore,
     deleteInboxItemWithStore,
     updateInboxItemWithStore,
@@ -30,7 +31,9 @@ const InboxItems: React.FC = () => {
     const { showSuccessToast, showErrorToast } = useToast();
 
     // Access store data
-    const { inboxItems, isLoading } = useStore((state) => state.inboxStore);
+    const { inboxItems, isLoading, pagination } = useStore(
+        (state) => state.inboxStore
+    );
     const {
         areas,
         setAreas,
@@ -57,13 +60,13 @@ const InboxItems: React.FC = () => {
     const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
     const [noteToEdit, setNoteToEdit] = useState<Note | null>(null);
 
-    // Track the current inbox item ID being converted (for task/project/note conversion)
-    const [currentConversionItemId, setCurrentConversionItemId] = useState<
-        number | null
+    // Track the current inbox item UID being converted (for task/project/note conversion)
+    const [currentConversionItemUid, setCurrentConversionItemUid] = useState<
+        string | null
     >(null);
 
     // Track the current inbox item being edited
-    const [itemToEdit, setItemToEdit] = useState<number | null>(null);
+    const [itemToEdit, setItemToEdit] = useState<string | null>(null);
 
     // Create stable default task object to prevent infinite re-renders
     const defaultTask = useMemo(
@@ -179,9 +182,12 @@ const InboxItems: React.FC = () => {
         };
     }, [t, showSuccessToast]); // Include dependencies that are actually used
 
-    const handleProcessItem = async (id: number, showToast: boolean = true) => {
+    const handleProcessItem = async (
+        uid: string,
+        showToast: boolean = true
+    ) => {
         try {
-            await processInboxItemWithStore(id);
+            await processInboxItemWithStore(uid);
             if (showToast) {
                 showSuccessToast(t('inbox.itemProcessed'));
             }
@@ -191,9 +197,9 @@ const InboxItems: React.FC = () => {
         }
     };
 
-    const handleUpdateItem = async (id: number): Promise<void> => {
+    const handleUpdateItem = async (uid: string): Promise<void> => {
         // When edit button is clicked, we open the InboxModal instead of doing inline editing
-        setItemToEdit(id);
+        setItemToEdit(uid);
         setIsEditModalOpen(true);
     };
 
@@ -211,9 +217,9 @@ const InboxItems: React.FC = () => {
         }
     };
 
-    const handleDeleteItem = async (id: number) => {
+    const handleDeleteItem = async (uid: string) => {
         try {
-            await deleteInboxItemWithStore(id);
+            await deleteInboxItemWithStore(uid);
             showSuccessToast(t('inbox.itemDeleted'));
         } catch (error) {
             console.error('Failed to delete inbox item:', error);
@@ -222,7 +228,7 @@ const InboxItems: React.FC = () => {
     };
 
     // Modal handlers
-    const handleOpenTaskModal = async (task: Task, inboxItemId?: number) => {
+    const handleOpenTaskModal = async (task: Task, inboxItemUid?: string) => {
         try {
             // Load projects first before opening the modal
             try {
@@ -239,8 +245,8 @@ const InboxItems: React.FC = () => {
 
             setTaskToEdit(task);
 
-            if (inboxItemId) {
-                setCurrentConversionItemId(inboxItemId);
+            if (inboxItemUid) {
+                setCurrentConversionItemUid(inboxItemUid);
             }
 
             setIsTaskModalOpen(true);
@@ -251,7 +257,7 @@ const InboxItems: React.FC = () => {
 
     const handleOpenProjectModal = async (
         project: Project | null,
-        inboxItemId?: number
+        inboxItemUid?: string
     ) => {
         try {
             // Load areas first before opening the modal (similar to task modal)
@@ -266,8 +272,8 @@ const InboxItems: React.FC = () => {
 
             setProjectToEdit(project);
 
-            if (inboxItemId) {
-                setCurrentConversionItemId(inboxItemId);
+            if (inboxItemUid) {
+                setCurrentConversionItemUid(inboxItemUid);
             }
 
             setIsProjectModalOpen(true);
@@ -278,7 +284,7 @@ const InboxItems: React.FC = () => {
 
     const handleOpenNoteModal = async (
         note: Note | null,
-        inboxItemId?: number
+        inboxItemUid?: string
     ) => {
         // Set up the note data first
         if (note && note.content && isUrl(note.content.trim())) {
@@ -291,8 +297,8 @@ const InboxItems: React.FC = () => {
 
         setNoteToEdit(note);
 
-        if (inboxItemId) {
-            setCurrentConversionItemId(inboxItemId);
+        if (inboxItemUid) {
+            setCurrentConversionItemUid(inboxItemUid);
         }
 
         // Projects are already available from the store
@@ -318,9 +324,9 @@ const InboxItems: React.FC = () => {
             showSuccessToast(taskLink);
 
             // Process the inbox item after successful task creation
-            if (currentConversionItemId !== null) {
-                await handleProcessItem(currentConversionItemId, false);
-                setCurrentConversionItemId(null);
+            if (currentConversionItemUid !== null) {
+                await handleProcessItem(currentConversionItemUid, false);
+                setCurrentConversionItemUid(null);
             }
 
             setIsTaskModalOpen(false);
@@ -336,9 +342,9 @@ const InboxItems: React.FC = () => {
             showSuccessToast(t('project.createSuccess'));
 
             // Process the inbox item after successful project creation
-            if (currentConversionItemId !== null) {
-                await handleProcessItem(currentConversionItemId, false);
-                setCurrentConversionItemId(null);
+            if (currentConversionItemUid !== null) {
+                await handleProcessItem(currentConversionItemUid, false);
+                setCurrentConversionItemUid(null);
             }
 
             setIsProjectModalOpen(false);
@@ -375,9 +381,9 @@ const InboxItems: React.FC = () => {
             );
 
             // Process the inbox item after successful note creation
-            if (currentConversionItemId !== null) {
-                await handleProcessItem(currentConversionItemId, false);
-                setCurrentConversionItemId(null);
+            if (currentConversionItemUid !== null) {
+                await handleProcessItem(currentConversionItemUid, false);
+                setCurrentConversionItemUid(null);
             }
 
             setIsNoteModalOpen(false);
@@ -389,7 +395,7 @@ const InboxItems: React.FC = () => {
 
     const handleCreateProject = async (name: string): Promise<Project> => {
         try {
-            const project = await createProject({ name, active: true });
+            const project = await createProject({ name, state: 'planned' });
             showSuccessToast(t('project.createSuccess'));
             return project;
         } catch (error) {
@@ -399,7 +405,18 @@ const InboxItems: React.FC = () => {
         }
     };
 
-    if (isLoading) {
+    const handleLoadMore = async () => {
+        try {
+            await loadMoreInboxItemsToStore();
+        } catch (error) {
+            console.error('Failed to load more inbox items:', error);
+            showErrorToast(
+                t('inbox.loadMoreError', 'Failed to load more items')
+            );
+        }
+    };
+
+    if (isLoading && inboxItems.length === 0) {
         return <LoadingScreen />;
     }
 
@@ -492,20 +509,81 @@ const InboxItems: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="space-y-2">
-                        {inboxItems.map((item) => (
-                            <InboxItemDetail
-                                key={item.id}
-                                item={item}
-                                onProcess={handleProcessItem}
-                                onDelete={handleDeleteItem}
-                                onUpdate={handleUpdateItem}
-                                openTaskModal={handleOpenTaskModal}
-                                openProjectModal={handleOpenProjectModal}
-                                openNoteModal={handleOpenNoteModal}
-                                projects={projects}
-                            />
-                        ))}
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            {inboxItems.map((item) => (
+                                <InboxItemDetail
+                                    key={item.uid || item.id}
+                                    item={item}
+                                    onProcess={handleProcessItem}
+                                    onDelete={handleDeleteItem}
+                                    onUpdate={handleUpdateItem}
+                                    openTaskModal={handleOpenTaskModal}
+                                    openProjectModal={handleOpenProjectModal}
+                                    openNoteModal={handleOpenNoteModal}
+                                    projects={projects}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Load more button */}
+                        {pagination.hasMore && (
+                            <div className="flex justify-center pt-4">
+                                <button
+                                    onClick={handleLoadMore}
+                                    disabled={isLoading}
+                                    className="inline-flex items-center px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <svg
+                                                className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    className="opacity-25"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    strokeWidth="4"
+                                                ></circle>
+                                                <path
+                                                    className="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            {t('inbox.loading', 'Loading...')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <InboxIcon className="h-4 w-4 mr-2" />
+                                            {t(
+                                                'inbox.loadMore',
+                                                'Load more inbox items'
+                                            )}
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Pagination info */}
+                        {inboxItems.length > 0 && (
+                            <div className="text-center text-sm text-gray-500 dark:text-gray-400 pt-2">
+                                {t(
+                                    'inbox.showingItems',
+                                    'Showing {{current}} of {{total}} items',
+                                    {
+                                        current: inboxItems.length,
+                                        total: pagination.total,
+                                    }
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -602,7 +680,7 @@ const InboxItems: React.FC = () => {
                         onSave={handleSaveTask}
                         onSaveNote={handleSaveNote}
                         initialText={
-                            inboxItems.find((item) => item.id === itemToEdit)
+                            inboxItems.find((item) => item.uid === itemToEdit)
                                 ?.content || ''
                         }
                         editMode={true}

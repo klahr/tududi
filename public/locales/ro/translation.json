@@ -538,7 +538,11 @@
     "unprocessedItems": "Ai {{count}} element(e) în inbox",
     "processNow": "Procesează acum",
     "deleteConfirmTitle": "Șterge elementul",
-    "deleteConfirmMessage": "Ești sigur că vrei să ștergi acest element din inbox? Această acțiune nu poate fi anulată."
+    "deleteConfirmMessage": "Ești sigur că vrei să ștergi acest element din inbox? Această acțiune nu poate fi anulată.",
+    "loadMoreError": "Eșec la încărcarea mai multor elemente",
+    "loading": "Se încarcă...",
+    "loadMore": "Încărcați mai multe elemente din inbox",
+    "showingItems": "Afișare {{current}} din {{total}} elemente"
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",
@@ -651,6 +655,20 @@
       "inactive": "Inactiv",
       "all": "Toate",
       "allAreas": "Toate zonele"
+    },
+    "selectState": "Selectați Starea",
+    "state": "Starea Proiectului",
+    "states": {
+      "idea": "Idee",
+      "planned": "Planificat",
+      "in_progress": "În Progres",
+      "blocked": "Blocat",
+      "completed": "Finalizat",
+      "idea_desc": "Capturat, dar încă neplanificat",
+      "planned_desc": "Definit și gata de început",
+      "in_progress_desc": "Lucru activ în desfășurare",
+      "blocked_desc": "Pauză temporară sau blocat",
+      "completed_desc": "Finalizat și terminat"
     }
   },
   "projectItem": {

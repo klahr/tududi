@@ -538,7 +538,11 @@
     "unprocessedItems": "Du har {{count}} objekt i din inkorg",
     "processNow": "Bearbeta nu",
     "deleteConfirmTitle": "Ta bort objekt",
-    "deleteConfirmMessage": "Är du säker på att du vill ta bort objektet från din inkorg? Åtgärden kan inte ångras."
+    "deleteConfirmMessage": "Är du säker på att du vill ta bort objektet från din inkorg? Åtgärden kan inte ångras.",
+    "loadMoreError": "Misslyckades med att ladda fler objekt",
+    "loading": "Laddar...",
+    "loadMore": "Ladda fler inkorgsobjekt",
+    "showingItems": "Visar {{current}} av {{total}} objekt"
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",
@@ -580,7 +584,7 @@
     "taskCreated": "Uppgift skapad!",
     "taskUpdated": "Uppgift uppdaterad!",
     "taskDeleted": "Uppgift borttagen!",
-    "noteDeleted": "Anteckningen har raderats framgångsrikt!"
+    "noteDeleted": "Anteckning borttagen!"
   },
   "note": {
     "title": "Titel",
@@ -651,6 +655,20 @@
       "inactive": "Inaktiva",
       "all": "Alla",
       "allAreas": "Alla områden"
+    },
+    "selectState": "Välj status",
+    "state": "Projektstatus",
+    "states": {
+      "idea": "Idé",
+      "planned": "Planerad",
+      "in_progress": "Pågående",
+      "blocked": "Blockerad",
+      "completed": "Avslutad",
+      "idea_desc": "Fångad men inte planerad än",
+      "planned_desc": "Avgränsad och redo att starta",
+      "in_progress_desc": "Aktivt arbete pågår",
+      "blocked_desc": "Tillfälligt pausad eller fast",
+      "completed_desc": "Avslutad och klar"
     }
   },
   "projectItem": {
